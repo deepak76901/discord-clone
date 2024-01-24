@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Profile {
+  id       String @id @default(uuid())
+  userId   String @unique
+  name     String
+  imageUrl String @db.Text
+  email    String @db.Text
+
+  servers Server[]
+  members Member[]
+  channels Channel[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Server {
+  id         String @id @default(uuid())
+  name       String
+  imageUrl   String @db.Text
+  inviteCode String @db.Text
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members Member[]
+  channels Channel[]
+
+  //in relation annotation we have suffering from an error, below line resolves it
+  @@index([profileId])
+}
+
+enum MemberRole {
+  ADMIN
+  MODERATOR
+  GUEST
+}
+
+model Member {
+  id   String     @id @default(uuid())
+  role MemberRole @default(GUEST)
+
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  serverId String
+  server Server @relation(fields: [serverId],references: [id],onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //in relation annotation we have suffering from an error, below line resolves it
+  @@index([profileId])
+  @@index([serverId])
+}
+
+enum ChannelType {
+  Text
+  AUDIO
+  VIDEO
+} 
+
+model Channel {
+  id String @id @default(uuid())
+  name String
+  type ChannelType @default(Text)
+
+  profileId String
+  profile Profile @relation(fields: [profileId],references: [id],onDelete: Cascade)
+
+  serverId String
+  server Server @relation(fields: [serverId],references: [id],onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([profileId])
+  @@index([serverId])
+}
+
+// TO intialise pisma 1. npm i prisma 2. npx prisma init
+
+
+// 1st command after creating model --> npx prisma generate #this add our schema in node modules,so we can work by just using npm init
+//2nd command --> npx prisma db push #this will create tables and databases in DATABASE softwares or online DATABASE like planetScale,Mongodb Atlas
