@@ -37,4 +37,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 
 ## Pushing Schema to Mongodb or any other Database
-```npx prisma db push```
+```
+npx prisma db push
+```
