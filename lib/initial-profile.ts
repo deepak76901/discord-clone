@@ -1,6 +1,6 @@
-import { currentUser, redirectToSignIn } from "@clerk/nextjs";
+import { currentUser, redirectToSignIn } from "@clerk/nextjs/server";
 
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/db";
 
 export const initialProfile = async () => {
   const user = await currentUser();
@@ -8,17 +8,17 @@ export const initialProfile = async () => {
   if (!user) {
     return redirectToSignIn();
   }
-  const profile = await db.profile.findUnique({
+  const profile = await prisma.profile.findMany({
     where: {
-      userId: user.id,
+      userId: user?.id,
     },
   });
 
   if (profile) {
     return profile;
   }
-
-  const newProfile = db.profile.create({
+  console.log("Profile",profile);
+  const newProfile = prisma.profile.create({
     data: {
       userId: user.id,
       name: `${user.firstName} ${user.lastName}`,
