@@ -5,7 +5,7 @@ import InitialModal from "@/components/modals/initial-modal";
 
 const setupPage = async () => {
   const profile = await initialProfile();
-  // console.log("Profile : ",profile);
+  console.log("Page Profile : ",profile);
 
   // const server = await prisma.server.findFirst({
   //   where: {
