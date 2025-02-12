@@ -1,19 +1,16 @@
-import { currentUser, auth } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
 import { prisma } from "@/lib/db";
-import { NextResponse } from "next/server";
+import { Profile } from "./types";
+import { redirect } from "next/navigation";
 
-export const initialProfile = async () => {
-  const user = await currentUser();
-  const { redirectToSignIn } = await auth();
-  // const router = useRouter();
-
+export const initialProfile = async ({...user}): Promise<Profile | null> => {
+  console.log("Initial Profile loaded");
   if (!user) {
-    return NextResponse.redirect(new URL("/sign-in", "http://localhost:3000"));
+    return redirect("/sign-in");
   }
-  console.log("Clerk Current User : ", user);
 
-  const profile = await prisma.profile.findUnique({
+  const profile: Profile | null = await prisma.profile.findUnique({
     where: { userId: user?.id },
   });
 
@@ -21,7 +18,7 @@ export const initialProfile = async () => {
     return profile;
   }
 
-  const newProfile = prisma.profile.create({
+  const newProfile: Profile | null = await prisma.profile.create({
     data: {
       userId: user.id,
       name: `${user.firstName} ${user.lastName}`,
@@ -29,5 +26,6 @@ export const initialProfile = async () => {
       email: user.emailAddresses[0].emailAddress,
     },
   });
+
   return newProfile;
 };
