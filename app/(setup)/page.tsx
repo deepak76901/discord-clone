@@ -1,14 +1,12 @@
-"use client"
+"use client";
 import { initialProfile } from "@/lib/initial-profile";
 import InitialModal from "@/components/modals/initial-modal";
 import { prisma } from "@/lib/db";
 import { Profile } from "@/lib/types";
 import { redirect } from "next/navigation";
 import { useAuth, useUser } from "@clerk/nextjs";
-import {getUser} from "@/lib/getUser"
 
 const setupPage = () => {
-
   const { isSignedIn, user, isLoaded } = useUser();
 
   if (!isLoaded) {
@@ -17,11 +15,18 @@ const setupPage = () => {
   if (!isSignedIn) {
     return <div>Sign in to view this page</div>;
   }
-  
-  const res = getUser()
-  console.log(" Fethced User : ",res);
-  
- 
+  const getUser = async () => {
+    const response = await fetch("http://localhost:3000/api/signIn", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(user),
+    });
+    return response;
+  };
+  getUser()
+    .then((res) => res.json())
+    .then((data) => console.log("Fetched User : ", data));
+
   // return (
   //   <div>
   //     Hello, {userId}! Your current active session is {sessionId}.
