@@ -49,7 +49,7 @@ const setupPage = () => {
   //   return redirect(`/servers/${server.id}`);
   // }
 
-  // return <InitialModal />;
+  return <InitialModal />;
 };
 
 export default setupPage;

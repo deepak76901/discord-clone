@@ -3,6 +3,10 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { UploadFile } from "@/components/uploadFile";
 
 import {
   Dialog,
@@ -21,9 +25,6 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -39,9 +40,14 @@ const InitialModal = () => {
     /*below code is injecting because we face Hydration error of UI,cause we use Modal in web Page */
   }
   const [isMounted, setIsMounted] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
+  useEffect(() => {
+    console.log("Image Url : ", imageUrl);
+  }, [imageUrl]);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -83,6 +89,26 @@ const InitialModal = () => {
                 <div className="flex text-center items-center justify-center font-bold">
                   TODO: Image Upload
                 </div>
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="uppercase text-sm font-bold text-zinc-800 dark:text-secondary/70">
+                        Upload File
+                      </FormLabel>
+                      <FormControl>
+                        <UploadFile
+                          setUrl={setImageUrl}
+                          value={field.value}
+                          onChange={field.onChange}
+                          endpoint="serverImage"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="name"

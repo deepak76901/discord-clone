@@ -1,14 +1,29 @@
 import { prisma } from "@/lib/db";
+import { Profile } from "@/lib/types";
 import { NextRequest, NextResponse } from "next/server";
 
-export function GET() {
+export function GET(): Response {
   return Response.json({ name: "deepak" });
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   const { ...user } = await request.json();
-  const existingUser = await prisma.profile.findFirst({where:{userId:user.id}})
-  console.log("User Found: ",existingUser)
+  const existingProfile: Profile | null = await prisma.profile.findFirst({
+    where: { userId: user.id },
+  });
 
-  return Response.json({"greet" : "Hello !"})
+  if (existingProfile) {
+    return NextResponse.json(existingProfile);
+  }
+
+  const newProfile: Profile | null = await prisma.profile.create({
+    data: {
+      userId: user.id,
+      name: `${user.firstName} ${user.lastName}`,
+      imageUrl: user.imageUrl,
+      email: user.emailAddresses[0].emailAddress,
+    },
+  });
+
+  return NextResponse.json(newProfile);
 }

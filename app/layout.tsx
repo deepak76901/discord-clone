@@ -10,6 +10,7 @@ import {
 } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { cn } from "@/lib/utils";
+import { Provider } from "@/components/ui/provider";
 
 const font = Open_Sans({ subsets: ["latin"] });
 
@@ -32,10 +33,10 @@ export default function RootLayout({
               <SignInButton />
             </SignedOut>
             <SignedIn>
-              <UserButton />
+              <UserButton afterSignOutUrl="/sign-in" />
             </SignedIn>
           </header>
-          <main>{children}</main>
+          <Provider forcedTheme="light" ><main>{children}</main></Provider>
         </body>
       </html>
     </ClerkProvider>
