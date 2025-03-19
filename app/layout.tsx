@@ -11,6 +11,7 @@ import {
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { cn } from "@/lib/utils";
 import { Provider } from "@/components/ui/provider";
+import { Button } from "@/components/ui/button";
 
 const font = Open_Sans({ subsets: ["latin"] });
 
@@ -30,7 +31,7 @@ export default function RootLayout({
         <body className={cn(font.className, "bg-white dark:bg-[#313338]")}>
         <header>
             <SignedOut>
-              <SignInButton />
+              <SignInButton><Button className="m-2 md:m-1">Sign In Now</Button></SignInButton>
             </SignedOut>
             <SignedIn>
               <UserButton afterSignOutUrl="/sign-in" />

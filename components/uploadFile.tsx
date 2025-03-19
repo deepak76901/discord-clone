@@ -18,9 +18,15 @@ interface UploadFileProps {
   endpoint: "messageFile" | "serverImage";
   value: string;
   onChange: (e: any) => void;
+  setValue: any;
 }
 
-export const UploadFile = ({ setUrl }: UploadFileProps) => {
+export const UploadFile = ({
+  setUrl,
+  onChange,
+  value,
+  setValue,
+}: UploadFileProps) => {
   const [progress, setProgress] = useState(0);
 
   const handleUpload = async (e: any) => {
@@ -45,6 +51,8 @@ export const UploadFile = ({ setUrl }: UploadFileProps) => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setValue("imageUrl", downloadURL);
+          value = downloadURL;
           setUrl(downloadURL);
         });
       }
@@ -61,16 +69,19 @@ export const UploadFile = ({ setUrl }: UploadFileProps) => {
         <FileUploadList />
       </FileUploadRoot> */}
       <div className="grid w-full max-w-sm items-center gap-1.5">
-        <Input id="picture" type="file" accept="image/*" />
+        <Input
+          id="picture"
+          type="file"
+          accept="image/*"
+          onChange={handleUpload}
+        />
       </div>
-      <div>
-        {progress > 0 ? (
+      <div className="text-sm">
+        {progress > 0 && progress < 100 ? (
           <p>{`Upload Progress: ${progress}%`}</p>
-        ) : progress === 100 && progress > 0 ? (
+        ) : progress !== 0 ? (
           <p>Upload Successfully</p>
-        ) : (
-          ""
-        )}
+        ) : null}
       </div>
     </div>
   );

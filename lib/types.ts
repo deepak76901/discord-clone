@@ -11,6 +11,16 @@ export interface Profile {
   channels?: Channel[] | null;
 }
 
-type Server = string;
+export interface Server {
+  id: string;
+  name: string;
+  imageUrl: string;
+  inviteCode: string;
+  profileId: string;
+  profile?: Profile;
+
+  members?: Member[] | null;
+  channels?: Channel[] | null;
+}
 type Channel = string;
 type Member = string;

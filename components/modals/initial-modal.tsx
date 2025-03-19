@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { UploadFile } from "@/components/uploadFile";
+import Image from "next/image";
+import axios from "axios";
 
 import {
   Dialog,
@@ -25,6 +27,9 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -39,15 +44,12 @@ const InitialModal = () => {
   {
     /*below code is injecting because we face Hydration error of UI,cause we use Modal in web Page */
   }
-  const [isMounted, setIsMounted] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+  const [imageUrl, setImageUrl] = useState<string>("");
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-  useEffect(() => {
-    console.log("Image Url : ", imageUrl);
-  }, [imageUrl]);
+  const router = useRouter();
+
+  const { user } = useUser();
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -57,10 +59,27 @@ const InitialModal = () => {
     },
   });
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    console.log("Image Url : ", imageUrl);
+  }, [imageUrl]);
+
   const isLoading = form.formState.isSubmitting;
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const onsubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log("Form Values: ", values);
+    try {
+      await axios.post(`/api/servers/${user?.id}`, values);
+
+      form.reset();
+      router.refresh();
+      // window.location.reload();
+    } catch (error) {
+      console.error("Error in form submission", error);
+    }
   };
 
   {
@@ -84,31 +103,56 @@ const InitialModal = () => {
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onsubmit)} className="space-y-8">
               <div className="space-y-8 px-6">
                 <div className="flex text-center items-center justify-center font-bold">
                   TODO: Image Upload
                 </div>
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="uppercase text-sm font-bold text-zinc-800 dark:text-secondary/70">
-                        Upload File
-                      </FormLabel>
-                      <FormControl>
-                        <UploadFile
-                          setUrl={setImageUrl}
-                          value={field.value}
-                          onChange={field.onChange}
-                          endpoint="serverImage"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {imageUrl === "" ? (
+                  <FormField
+                    control={form.control}
+                    name="imageUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="uppercase text-sm font-bold text-zinc-800 dark:text-secondary/70">
+                          Upload File
+                        </FormLabel>
+                        <FormControl>
+                          <UploadFile
+                            setValue={form.setValue}
+                            setUrl={setImageUrl}
+                            value={field.value}
+                            onChange={field.onChange}
+                            endpoint="serverImage"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <div className="w-full flex justify-center">
+                    <div className="relative ">
+                      <Image
+                        width={100}
+                        height={100}
+                        src={imageUrl}
+                        alt="Uploaded Image"
+                        className="rounded-lg"
+                      />
+                      <button
+                        onClick={() => {
+                          form.setValue("imageUrl", "");
+                          setImageUrl("");
+                        }}
+                        className="bg-rose-600 text-white p-1 rounded-full absolute top-0 right-0 shadow-sm"
+                        type="button"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <FormField
                   control={form.control}
                   name="name"
@@ -119,7 +163,6 @@ const InitialModal = () => {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          disabled={isLoading}
                           className="bg-zinc-300/50 border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-black"
                           placeholder="Enter Server Name"
                           {...field}
@@ -131,7 +174,7 @@ const InitialModal = () => {
                 />
               </div>
               <DialogFooter className="bg-gray-200 px-6 py-4">
-                <Button variant="primary" disabled={isLoading}>
+                <Button variant="primary" type="submit" disabled={isLoading}>
                   Create Server
                 </Button>
               </DialogFooter>

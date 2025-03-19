@@ -3,18 +3,17 @@ generator client {
 }
 
 datasource db {
-  provider  = "mongodb"
-  url       = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
   // directUrl = env("DIRECT_URL")
-  
 }
 
 model Profile {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  userId   String @unique
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId   String  @unique
   name     String
   imageUrl String? @db.String
-  email    String @db.String
+  email    String  @db.String
 
   servers  Server[]
   members  Member[]
@@ -30,8 +29,8 @@ model Server {
   imageUrl   String @db.String
   inviteCode String @db.String
 
-  profileId String @db.ObjectId
-  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId String   @db.ObjectId
+  profile   Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -53,7 +52,7 @@ model Member {
   id   String     @id @default(auto()) @map("_id") @db.ObjectId
   role MemberRole @default(GUEST)
 
-  profileId String @db.ObjectId
+  profileId String  @db.ObjectId
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   serverId String @db.ObjectId
@@ -78,7 +77,7 @@ model Channel {
   name String
   type ChannelType @default(Text)
 
-  profileId String @db.ObjectId
+  profileId String  @db.ObjectId
   profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   serverId String @db.ObjectId
