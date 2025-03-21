@@ -29,15 +29,19 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body className={cn(font.className, "bg-white dark:bg-[#313338]")}>
-        <header>
+          <header>
             <SignedOut>
-              <SignInButton><Button className="m-2 md:m-1">Sign In Now</Button></SignInButton>
+              <SignInButton>
+                <Button className="m-2 md:m-1">Sign In Now</Button>
+              </SignInButton>
             </SignedOut>
             <SignedIn>
               <UserButton afterSignOutUrl="/sign-in" />
             </SignedIn>
           </header>
-          <Provider forcedTheme="light" ><main>{children}</main></Provider>
+          <Provider forcedTheme="light">
+            <main>{children}</main>
+          </Provider>
         </body>
       </html>
     </ClerkProvider>
